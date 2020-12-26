@@ -16,7 +16,7 @@
 - 最新稳定版：1.4.6
 - 配置文件修改:  
 cd $SQOOP_HOME/conf
-mv sqoop-env-template.sh sqoop-env.sh
+mv sqoop-env-template.sh sqoop-env.sh  
 vim sqoop-env.sh
 export HADOOP_COMMON_HOME=/export/servers/hadoop-2.7.5
 export HADOOP_MAPRED_HOME=/export/servers/hadoop-2.7.5
@@ -425,12 +425,16 @@ bin/sqoop job --exec itcastjob
 ## 5.6 免密执行job 
 
 sqoop在创建job时，使用--password-file参数，可以避免输入mysql密码，如果使用--password将出现警告，并且每次都要手动输入密码才能执行job，sqoop规定密码文件必须存放在HDFS上，并且权限必须是400。  
-检查sqoop的sqoop-site.xml是否存在如下配置：  
+检查sqoop的sqoop-site.xml是否存在如下配置:  
+
+```xml
     <property>  
         <name>sqoop.metastore.client.record.password</name>  
         <value>true</value>  
         <description>If true, allow saved passwords in the metastore.</description>
     </property>  
+```
+
 bin/sqoop job \  
 --create itcastjob1 \  
 -- import \  
