@@ -10,7 +10,7 @@
   - Import:数据导入.RDBMS----->Hadoop
   - Export:数据导出.Hadoop---->RDBMS
 
-# 2 Sqoop介绍
+# 2 Sqoop安装
 
 - 安装sqoop的前提是已经具备java和hadoop 的环境。
 - 最新稳定版：1.4.6
@@ -40,7 +40,7 @@ $ sqoop import (generic-args) (import-args)
 在mysql中创建数据库userdb,然后执行userdb.sql脚本:  
 创建三张表: emp 雇员表、 emp_add 雇员地址表、 emp_conn 雇员联系表
 
-## 3.1 全量导入mysql表数据到 HDFS
+## 3.1 全量导入mysql表数据到HDFS
 
 下面的命令用于从MySQL数据库服务器中的emp表导入HDFS  
 bin/sqoop import \  
@@ -65,7 +65,7 @@ hdfs dfs -cat /sqoopresult/part-m-00000
 - 1204,prasanth,php dev,30000,AC
 - 1205,kranthi,admin,20000,TP
 
-## 3.2 全量导入mysql表数据到 HIVE
+## 3.2 全量导入mysql表数据到HIVE
 
 ### 3.1 方式一：先复制表结构到 hive 中再导入数据
 
@@ -77,9 +77,59 @@ bin/sqoop create-hive-table \
 --password hadoop \  
 --hive-table test.emp_add_sp  
 其中：
---table emp_add为mysql中的数据库sqoopdb中的表。
---hive-table emp_add_sp为hive中新建的表名称。
+--table emp_add为mysql中的数据库sqoopdb中的表
+--hive-table emp_add_sp为hive中新建的表名称  
 
+从关系数据库导入文件到hive中
+bin/sqoop import \  
+--connect jdbc:mysql://node-1:3306/sqoopdb \  
+--username root \  
+--password hadoop \  
+--table emp_add \  
+--hive-table test.emp_add_sp \  
+--hive-import \  
+--m 1  
 
+### 3.2 方式二： 直接复制表结构数据到hive中
 
+bin/sqoop import \  
+--connect jdbc:mysql://node-1:3306/userdb \  
+--username root \  
+--password hadoop \  
+--table emp_conn \  
+--hive-import \  
+--hive-database test \  
+--m 1
+
+### 3.3 导入表数据子集(where过滤)
+
+--where可以指定从关系数据库导入数据时的查询条件  
+它执行在数据库服务器相应的SQL查询，并将结果存储在HDFS的目标目录
+
+bin/sqoop import \
+--connect jdbc:mysql://node-1:3306/sqoopdb \
+--username root \
+--password hadoop \
+--table emp_add \
+--where "city ='sec-bad'" \
+--target-dir /wherequery \
+--m 1  
+
+### 3.4 导入表数据子集(query查询)
+
+注意事项:  
+使用query sql语句来进行查找不能加参数--table;  
+sql必须要添加where条件;  
+where条件后面必须带一个$CONDITIONS这个字符串;  
+sql语句必须用单引号,不能用双引号;
+bin/sqoop import \  
+
+--connect jdbc:mysql://node-1:3306/userdb \
+--username root \
+--password hadoop \
+--target-dir /wherequery12 \
+--query 'select id,name,deg from emp WHERE id>1203 and $CONDITIONS' \
+--split-by id \
+--fields-terminated-by '\t' \
+--m 2
 
