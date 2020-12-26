@@ -422,7 +422,7 @@ bin/sqoop job --show itcastjob
 下面的命令用于执行保存的作业称为itcastjob。  
 bin/sqoop job --exec itcastjob  
 
-## 5.6 免密执行job 
+## 5.6 免密执行job
 
 sqoop在创建job时，使用--password-file参数，可以避免输入mysql密码，如果使用--password将出现警告，并且每次都要手动输入密码才能执行job，sqoop规定密码文件必须存放在HDFS上，并且权限必须是400。  
 检查sqoop的sqoop-site.xml是否存在如下配置:  
@@ -443,4 +443,4 @@ bin/sqoop job \
 --password-file /input/sqoop/pwd/itcastmysql.pwd \  
 --target-dir /sqoopresult333 \  
 --table emp \  
---m 1
+--m 1  
